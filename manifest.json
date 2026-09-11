@@ -1,0 +1,14 @@
+{
+  "id": "tana-sync",
+  "name": "Tana Sync",
+  "version": "1.0.1",
+  "description": "Syncs tasks between Tana outliner and Super Productivity",
+  "manifestVersion": 1,
+  "minSupVersion": "14.0.0",
+  "iFrame": true,
+  "sidePanel": true,
+  "permissions": ["http", "getTasks", "updateTask", "addTask", "getAppState"],
+  "hooks": ["taskComplete"],
+  "allowedHosts": ["*"],
+  "icon": "sync"
+}

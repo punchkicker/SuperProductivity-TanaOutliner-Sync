@@ -1,0 +1,19 @@
+# Operating system
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Reference workspaces in parent folder
+super-productivty-google-tasks/
+super-productivty-notion/
+tana-sunsama-sync-github/
+.agents/
+
+# Local logs and temp
+*.log
+*.tmp
+node_modules/
+
+# Release archives
+*.zip
+

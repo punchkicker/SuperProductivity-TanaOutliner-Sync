@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tana Sync Plugin Configuration</title>
+  <style>
+    :root {
+      --bg-color: #1e1e2e;
+      --panel-bg: #181825;
+      --text-main: #cdd6f4;
+      --text-muted: #a6adc8;
+      --accent: #89b4fa;
+      --accent-hover: #b4befe;
+      --border: #313244;
+      --success: #a6e3a1;
+      --error: #f38ba8;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: var(--panel-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    input[type="text"], input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--accent);
+      color: var(--panel-bg);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      margin-bottom: 10px;
+    }
+
+    .btn:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(137, 180, 250, 0.1);
+    }
+
+    .status-msg {
+      font-size: 0.85rem;
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .status-success {
+      background-color: rgba(166, 227, 161, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(166, 227, 161, 0.2);
+    }
+
+    .status-error {
+      background-color: rgba(243, 139, 168, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(243, 139, 168, 0.2);
+    }
+
+    .help-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Tana Sync Settings</h2>
+    
+    <div class="form-group">
+      <label for="apiUrl">Tana Local API URL</label>
+      <input type="text" id="apiUrl" placeholder="http://127.0.0.1:8262" value="http://127.0.0.1:8262">
+      <span class="help-text">Default is http://127.0.0.1:8262</span>
+    </div>
+
+    <div class="form-group">
+      <label for="apiToken">Tana API Token</label>
+      <input type="password" id="apiToken" placeholder="e.g. 1a2b3c4d...">
+      <span class="help-text">Generated from Tana Settings &gt; API Tokens.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="taskTagId">Tana Task Tag IDs (Optional)</label>
+      <input type="text" id="taskTagId" placeholder="e.g. jX2p..., kY3q...">
+      <span class="help-text" style="line-height: 1.4;">Comma-separated list of supertag IDs.<br><br><em>How to find this: Right-click the tag in Tana &gt; "Copy node link" &gt; paste it somewhere and copy the ID from the URL after "nodeid=".</em></span>
+    </div>
+
+    <div class="form-group">
+      <label style="display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" id="includeCheckboxes" checked>
+        Include nodes with physical checkboxes (- [ ])
+      </label>
+      <span class="help-text">If checked, standard checkboxes will be imported even if they don't have the supertags listed above.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="dueDateField">Tana Due Date Property</label>
+      <input type="text" id="dueDateField" placeholder="Due date" value="Due date">
+      <span class="help-text">Field name in Tana to map to Super Productivity Deadline (default: <code>Due date</code>).</span>
+    </div>
+
+    <div class="form-group">
+      <label for="plannedDateField">Tana Planned Date Property (Optional)</label>
+      <input type="text" id="plannedDateField" placeholder="Leave blank to use parent / daily note">
+      <span class="help-text">Optional custom field name (e.g. <code>Planned date</code>). If blank, uses the parent or daily note.</span>
+    </div>
+
+    <div class="form-group">
+      <label style="display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" id="autoPlanFromDay" checked>
+        Auto-plan tasks created on a day / daily note
+      </label>
+      <span class="help-text">If checked, any task created under a daily note (or nested under a sub-header on a daily page) will be scheduled for that day in Super Productivity.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="syncInterval">Sync Interval (minutes)</label>
+      <input type="number" id="syncInterval" min="1" max="1440" value="5">
+    </div>
+
+    <div class="form-group">
+      <label for="targetSpProjectId">Target Project</label>
+      <select id="targetSpProjectId" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+        <option value="">Inbox (Default)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="targetSpTagId">Auto-Tag Tasks</label>
+      <select id="targetSpTagId" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+        <option value="">None (Inbox only)</option>
+      </select>
+    </div>
+
+    <button id="saveBtn" class="btn">Save Configuration</button>
+    <button id="manualSyncBtn" class="btn btn-secondary">Sync Now</button>
+    <button id="toggleLogsBtn" class="btn btn-secondary" style="margin-top: 10px; font-size: 0.8rem;">View Debug Log</button>
+
+    <div id="statusMsg" class="status-msg"></div>
+    <div id="debugLogs" style="margin-top: 10px; font-family: monospace; font-size: 0.75rem; color: var(--text-muted); background: #11111b; padding: 10px; border-radius: 6px; white-space: pre-wrap; display: none;"></div>
+  </div>
+
+  <script>
+    const statusMsg = document.getElementById('statusMsg');
+    
+    function showStatus(msg, isError = false) {
+      statusMsg.textContent = msg;
+      statusMsg.style.display = 'block';
+      statusMsg.className = 'status-msg ' + (isError ? 'status-error' : 'status-success');
+      setTimeout(() => {
+        statusMsg.style.display = 'none';
+      }, 5000);
+    }
+
+    const STORAGE_KEY = 'tana_sync_config_fallback';
+    let isConfigLoadedFromHost = false;
+    
+    // Fallback load
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const config = JSON.parse(stored);
+        if (config.apiUrl) document.getElementById('apiUrl').value = config.apiUrl;
+        if (config.apiToken) document.getElementById('apiToken').value = config.apiToken.replace('Bearer ', '');
+        if (config.taskTagId !== undefined) document.getElementById('taskTagId').value = config.taskTagId;
+        if (config.includeCheckboxes !== undefined) document.getElementById('includeCheckboxes').checked = config.includeCheckboxes;
+        if (config.dueDateField !== undefined) document.getElementById('dueDateField').value = config.dueDateField;
+        if (config.plannedDateField !== undefined) document.getElementById('plannedDateField').value = config.plannedDateField;
+        if (config.autoPlanFromDay !== undefined) document.getElementById('autoPlanFromDay').checked = config.autoPlanFromDay;
+        if (config.syncInterval) document.getElementById('syncInterval').value = config.syncInterval;
+      }
+    } catch (e) {}
+
+    // Polling for config
+    const reqInterval = setInterval(() => {
+      if (!isConfigLoadedFromHost) {
+        window.parent.postMessage({ type: 'TANA_GET_CONFIG' }, '*');
+      } else {
+        clearInterval(reqInterval);
+      }
+    }, 500);
+
+    window.parent.postMessage({ type: 'TANA_GET_CONFIG' }, '*');
+
+    document.getElementById('toggleLogsBtn').addEventListener('click', () => {
+      const dbg = document.getElementById('debugLogs');
+      dbg.style.display = dbg.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Save config
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const config = {
+        apiUrl: document.getElementById('apiUrl').value.trim() || 'http://127.0.0.1:8262',
+        apiToken: document.getElementById('apiToken').value.trim(),
+        taskTagId: document.getElementById('taskTagId').value.trim(),
+        includeCheckboxes: document.getElementById('includeCheckboxes').checked,
+        dueDateField: document.getElementById('dueDateField').value.trim() || 'Due date',
+        plannedDateField: document.getElementById('plannedDateField').value.trim(),
+        autoPlanFromDay: document.getElementById('autoPlanFromDay').checked,
+        syncInterval: parseInt(document.getElementById('syncInterval').value, 10) || 5,
+        targetSpTagId: document.getElementById('targetSpTagId').value,
+        targetSpProjectId: document.getElementById('targetSpProjectId').value
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      } catch (e) {}
+
+      window.parent.postMessage({
+        type: 'TANA_SAVE_CONFIG',
+        config: config
+      }, '*');
+      
+      showStatus('Configuration saved!');
+    });
+
+    // Manual Sync
+    document.getElementById('manualSyncBtn').addEventListener('click', () => {
+      showStatus('Syncing...');
+      window.parent.postMessage({ type: 'TANA_MANUAL_SYNC' }, '*');
+    });
+
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'TANA_CONFIG_DATA') {
+        isConfigLoadedFromHost = true;
+        const config = event.data.config || {};
+        const spTags = event.data.spTags || [];
+        const spProjects = event.data.spProjects || [];
+        
+        if (event.data.hostLogs && event.data.hostLogs.length > 0) {
+          const dbg = document.getElementById('debugLogs');
+          dbg.innerHTML = "<strong>Host Logs:</strong><br/>" + event.data.hostLogs.join('<br/>');
+        }
+        
+        const tagSelect = document.getElementById('targetSpTagId');
+        while (tagSelect.options.length > 1) { tagSelect.remove(1); }
+        
+        spTags.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.title;
+          tagSelect.appendChild(opt);
+        });
+
+        const projectSelect = document.getElementById('targetSpProjectId');
+        while (projectSelect.options.length > 1) { projectSelect.remove(1); }
+        
+        spProjects.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.title;
+          projectSelect.appendChild(opt);
+        });
+
+        if (config.apiUrl) document.getElementById('apiUrl').value = config.apiUrl;
+        if (config.apiToken) document.getElementById('apiToken').value = config.apiToken.replace('Bearer ', '');
+        if (config.taskTagId !== undefined) document.getElementById('taskTagId').value = config.taskTagId;
+        if (config.includeCheckboxes !== undefined) document.getElementById('includeCheckboxes').checked = config.includeCheckboxes;
+        if (config.dueDateField !== undefined) document.getElementById('dueDateField').value = config.dueDateField;
+        if (config.plannedDateField !== undefined) document.getElementById('plannedDateField').value = config.plannedDateField;
+        if (config.autoPlanFromDay !== undefined) document.getElementById('autoPlanFromDay').checked = config.autoPlanFromDay;
+        if (config.syncInterval) document.getElementById('syncInterval').value = config.syncInterval;
+        if (config.targetSpTagId) document.getElementById('targetSpTagId').value = config.targetSpTagId;
+        if (config.targetSpProjectId) document.getElementById('targetSpProjectId').value = config.targetSpProjectId;
+      } else if (event.data && event.data.type === 'TANA_SYNC_RESULT') {
+        showStatus(event.data.message, event.data.isError);
+      } else if (event.data && event.data.type === 'TANA_DEBUG_LOG') {
+        const dbg = document.getElementById('debugLogs');
+        dbg.innerHTML += "<br/>" + event.data.message;
+      }
+    });
+
+  </script>
+</body>
+</html>
