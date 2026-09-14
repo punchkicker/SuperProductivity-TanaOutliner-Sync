@@ -2,7 +2,8 @@
 // TANA SYNC PLUGIN (Background Script)
 // =========================================================================
 
-const PLUGIN_VERSION = '1.0.1';
+const PLUGIN_VERSION = '1.1.0';
+const PLUGIN_BUILD = 17;
 
 let config = {};
 let iframeSource = null;
@@ -56,7 +57,7 @@ window.addEventListener('message', (event) => {
           let hostLogs = [];
           
           try {
-            hostLogs.push(`--- Tana Sync Plugin v${PLUGIN_VERSION} ---`);
+            hostLogs.push(`--- Tana Sync Plugin v${PLUGIN_VERSION} (Build ${PLUGIN_BUILD}) ---`);
             if (typeof PluginAPI !== 'undefined') {
               let allKeys = [];
               for (let k in PluginAPI) allKeys.push(k);
@@ -127,10 +128,16 @@ window.addEventListener('message', (event) => {
         })();
       }
     } else if (event.data.type === 'TANA_SAVE_CONFIG') {
-      config = event.data.config;
-      localStorage.setItem('tana_sync_config', JSON.stringify(config));
+      config = event.data.config || {};
+      try {
+        localStorage.setItem('tana_sync_config', JSON.stringify(config));
+      } catch (e) {
+        console.error('Failed to save config to localStorage', e);
+      }
+      const rCount = (config.routingRules && Array.isArray(config.routingRules)) ? config.routingRules.length : 0;
       if (iframeSource) {
-        iframeSource.postMessage({ type: 'TANA_SYNC_RESULT', message: 'Config saved in background', isError: false }, '*');
+        iframeSource.postMessage({ type: 'TANA_SYNC_RESULT', message: `Config saved! (${rCount} rules active)`, isError: false }, '*');
+        iframeSource.postMessage({ type: 'TANA_DEBUG_LOG', message: `[CONFIG SAVED] Background worker stored ${rCount} routing rule(s): ${JSON.stringify(config.routingRules || [])}` }, '*');
       }
       // Restart loop with new interval
       if (syncIntervalId) clearInterval(syncIntervalId);
@@ -140,6 +147,74 @@ window.addEventListener('message', (event) => {
         iframeSource.postMessage({ type: 'TANA_SYNC_RESULT', message: 'Syncing now...', isError: false }, '*');
       }
       runSync();
+    } else if (event.data.type === 'TANA_SEARCH_NODES') {
+      const query = (event.data.query || '').trim();
+      const ruleIndex = event.data.ruleIndex;
+      const targetSource = event.source || iframeSource;
+      (async () => {
+        let results = [];
+        try {
+          if (config.apiUrl && config.apiToken && query) {
+            const headers = {
+              'Authorization': config.apiToken.startsWith('Bearer ') ? config.apiToken : `Bearer ${config.apiToken}`,
+              'Content-Type': 'application/json'
+            };
+
+            // Check if user pasted a Tana URL or direct node ID
+            let directNodeId = null;
+            const urlMatch = query.match(/[?&]nodeid=([a-zA-Z0-9_-]+)/i);
+            if (urlMatch) {
+              directNodeId = urlMatch[1];
+            } else if (/^[a-zA-Z0-9_-]{10,25}$/.test(query)) {
+              directNodeId = query;
+            }
+
+            if (directNodeId) {
+              try {
+                const nodeRes = await fetch(`${config.apiUrl}/nodes/${directNodeId}`, { headers });
+                if (nodeRes.ok) {
+                  const nodeData = await nodeRes.json();
+                  if (nodeData && nodeData.name) {
+                    results.push({
+                      id: directNodeId,
+                      name: cleanHtmlTags(nodeData.name),
+                      breadcrumb: (nodeData.breadcrumb || []).map(cleanHtmlTags)
+                    });
+                  }
+                }
+              } catch (e) {}
+            }
+
+            if (results.length === 0) {
+              const searchUrl = new URL(`${config.apiUrl}/nodes/search`);
+              searchUrl.searchParams.append('limit', '10');
+              searchUrl.searchParams.append('query[textContains]', query);
+              const res = await fetch(searchUrl.toString(), { headers });
+              if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                  results = data.slice(0, 10).map(n => ({
+                    id: n.id,
+                    name: cleanHtmlTags(n.name || ''),
+                    breadcrumb: (n.breadcrumb || []).map(cleanHtmlTags)
+                  })).filter(n => n.name);
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error searching Tana nodes:', err);
+        }
+
+        if (targetSource) {
+          targetSource.postMessage({
+            type: 'TANA_SEARCH_NODES_RESULT',
+            query: query,
+            ruleIndex: ruleIndex,
+            results: results
+          }, '*');
+        }
+      })();
     }
   }
 });
@@ -176,7 +251,9 @@ function extractId(title) {
 
 function cleanHtmlTags(text) {
   if (!text) return '';
-  return text.replace(/<[^>]*>/g, '');
+  if (typeof text === 'object' && text.name) text = text.name;
+  if (typeof text !== 'string') text = String(text);
+  return text.replace(/<[^>]*>/g, '').trim();
 }
 
 function formatBreadcrumbPath(breadcrumb) {
@@ -217,7 +294,85 @@ function parseTanaDate(dateStr) {
   return null;
 }
 
+function evaluateTaskRouting(node, config) {
+  const rules = config.routingRules || [];
+  const bc = node.breadcrumb || [];
+  const nodeTags = node.tags || [];
+  const nodeTagIds = node.tagIds || [];
+  const nodeName = cleanHtmlTags(node.name || '').trim();
+
+  let matchedRule = null;
+
+  for (const rule of rules) {
+    if (!rule.pattern || !rule.pattern.trim()) continue;
+    const pattern = cleanHtmlTags(rule.pattern).replace(/^['"`]|['"`]$/g, '').trim().toLowerCase();
+    if (!pattern) continue;
+
+    const mode = rule.matchMode || 'contains';
+    const type = rule.matchType || 'ancestor';
+
+    let isMatch = false;
+
+    if (type === 'ancestor') {
+      isMatch = bc.some(b => {
+        const cleanB = cleanHtmlTags(b).replace(/^['"`]|['"`]$/g, '').trim().toLowerCase();
+        return mode === 'exact' ? cleanB === pattern : cleanB.includes(pattern);
+      });
+    } else if (type === 'supertag') {
+      isMatch = nodeTags.some(t => {
+        const cleanT = cleanHtmlTags(t.name || '').replace(/^['"`]|['"`]$/g, '').trim().toLowerCase();
+        return mode === 'exact' ? cleanT === pattern : cleanT.includes(pattern);
+      }) || nodeTagIds.some(tid => tid.toLowerCase() === pattern);
+    } else if (type === 'title') {
+      const lowerName = nodeName.toLowerCase();
+      isMatch = mode === 'exact' ? lowerName === pattern : lowerName.includes(pattern);
+    }
+
+    if (isMatch) {
+      matchedRule = rule;
+      break;
+    }
+  }
+
+  // Determine Project
+  let effectiveProjectId = null;
+  if (matchedRule && matchedRule.targetProjectId) {
+    effectiveProjectId = matchedRule.targetProjectId;
+  } else if (config.targetSpProjectId) {
+    effectiveProjectId = config.targetSpProjectId;
+  }
+
+  // Determine Tags
+  const tagSet = new Set();
+  const defaultTag = config.targetSpTagId || null;
+  const keepDefault = config.keepDefaultTag !== false;
+
+  if (matchedRule && matchedRule.targetTagId) {
+    tagSet.add(matchedRule.targetTagId);
+    if (keepDefault && defaultTag) {
+      tagSet.add(defaultTag);
+    }
+  } else if (defaultTag) {
+    tagSet.add(defaultTag);
+  }
+
+  return {
+    projectId: effectiveProjectId,
+    tagIds: Array.from(tagSet),
+    matchedRule: matchedRule
+  };
+}
+
 async function runSync() {
+  config = loadConfigSync();
+  if (iframeSource) {
+    const rCount = (config.routingRules && Array.isArray(config.routingRules)) ? config.routingRules.length : 0;
+    iframeSource.postMessage({ 
+      type: 'TANA_DEBUG_LOG', 
+      message: `--- Sync Started (Worker v${PLUGIN_VERSION} Build ${PLUGIN_BUILD}) ---\nLoaded ${rCount} routing rule(s): ${JSON.stringify(config.routingRules || [])}` 
+    }, '*');
+  }
+
   if (!config.apiUrl || !config.apiToken) {
     if (iframeSource) {
       iframeSource.postMessage({ type: 'TANA_SYNC_RESULT', message: 'Missing API config', isError: true }, '*');
@@ -404,20 +559,35 @@ async function runSync() {
           }
           fullNotes += `[Open in Tana](https://app.tana.inc/?nodeid=${refId})\n\n---\n**Tana Content:**\n\n${markdown}`;
           
-          let tanaTagId = config.targetSpTagId || null;
+          const routing = evaluateTaskRouting(node, config);
           
           const payload = {
             title: embedId(finalTitle, refId),
             notes: fullNotes,
-            tagIds: tanaTagId ? [tanaTagId] : [], // Attach selected tag if found
+            tagIds: routing.tagIds || [],
           };
-          if (config.targetSpProjectId) {
-            payload.projectId = config.targetSpProjectId;
+          if (routing.projectId) {
+            payload.projectId = routing.projectId;
           }
           
           if (tanaSchedDateIso) {
             payload.dueDay = tanaSchedDateIso.substring(0, 10);
             payload.plannedAt = new Date(tanaSchedDateIso).getTime();
+          }
+          
+          if (iframeSource) {
+            if (routing.matchedRule) {
+              iframeSource.postMessage({ 
+                type: 'TANA_DEBUG_LOG', 
+                message: `[RULE MATCH] "${finalTitle}": matched [${routing.matchedRule.pattern}] -> Project: ${routing.projectId || 'Default'}, Tags: [${routing.tagIds.join(', ')}]` 
+              }, '*');
+            } else {
+              const rCount = (config.routingRules && Array.isArray(config.routingRules)) ? config.routingRules.length : 0;
+              iframeSource.postMessage({ 
+                type: 'TANA_DEBUG_LOG', 
+                message: `[NO RULE MATCH] "${finalTitle}": fallback -> Project: ${routing.projectId || 'Default'}, Tags: [${routing.tagIds.join(', ')}]. Breadcrumbs: ${JSON.stringify(bc)}. Active rules (${rCount}): ${JSON.stringify(config.routingRules || [])}` 
+              }, '*');
+            }
           }
           
           if (isTest && iframeSource) {
@@ -426,17 +596,25 @@ async function runSync() {
           
           const res = await PluginAPI.addTask(payload);
           
-          if (tanaDueDateIso) {
-            let newTaskId = (typeof res === 'string') ? res : (res && res.id ? res.id : null);
-            if (!newTaskId) {
-              const freshTasks = await PluginAPI.getTasks();
-              const created = freshTasks.find(t => extractId(t.title) === refId);
-              if (created) newTaskId = created.id;
+          let newTaskId = (typeof res === 'string') ? res : (res && res.id ? res.id : null);
+          if (!newTaskId) {
+            const freshTasks = await PluginAPI.getTasks();
+            const created = freshTasks.find(t => extractId(t.title) === refId);
+            if (created) newTaskId = created.id;
+          }
+          if (newTaskId) {
+            const postUpdates = {};
+            if (tanaDueDateIso) {
+              postUpdates.deadlineDay = tanaDueDateIso.substring(0, 10);
             }
-            if (newTaskId) {
-              await PluginAPI.updateTask(newTaskId, {
-                deadlineDay: tanaDueDateIso.substring(0, 10)
-              });
+            if (routing.projectId) {
+              postUpdates.projectId = routing.projectId;
+            }
+            if (routing.tagIds && routing.tagIds.length > 0) {
+              postUpdates.tagIds = routing.tagIds;
+            }
+            if (Object.keys(postUpdates).length > 0) {
+              await PluginAPI.updateTask(newTaskId, postUpdates);
             }
           }
           
@@ -517,6 +695,36 @@ async function runSync() {
         }
         fullNotes += `[Open in Tana](https://app.tana.inc/?nodeid=${refId})\n\n---\n**Tana Content:**\n\n${markdown}`;
         updates.notes = fullNotes;
+
+        // Re-apply routing rules to open tasks if enabled
+        if (!spTask.isDone && config.updateExistingTasks !== false) {
+          const routing = evaluateTaskRouting(node, config);
+          if (routing.matchedRule) {
+            if (routing.projectId && spTask.projectId !== routing.projectId) {
+              updates.projectId = routing.projectId;
+              if (iframeSource) {
+                iframeSource.postMessage({ 
+                  type: 'TANA_DEBUG_LOG', 
+                  message: `Re-routing existing task "${finalTitle}" to Project: ${routing.projectId}` 
+                }, '*');
+              }
+            }
+            if (routing.tagIds && routing.tagIds.length > 0) {
+              const currentTags = spTask.tagIds || [];
+              const hasAllTags = routing.tagIds.every(t => currentTags.includes(t));
+              if (!hasAllTags) {
+                const merged = Array.from(new Set([...currentTags, ...routing.tagIds]));
+                updates.tagIds = merged;
+                if (iframeSource) {
+                  iframeSource.postMessage({ 
+                    type: 'TANA_DEBUG_LOG', 
+                    message: `Re-routing existing task "${finalTitle}" tags to: [${merged.join(', ')}]` 
+                  }, '*');
+                }
+              }
+            }
+          }
+        }
 
         if (Object.keys(updates).length > 0) {
           await PluginAPI.updateTask(spTask.id, updates);

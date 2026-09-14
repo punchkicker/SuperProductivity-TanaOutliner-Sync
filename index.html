@@ -25,7 +25,7 @@
     }
 
     .container {
-      max-width: 400px;
+      max-width: 440px;
       margin: 0 auto;
       background-color: var(--panel-bg);
       padding: 20px;
@@ -102,6 +102,195 @@
       background-color: rgba(137, 180, 250, 0.1);
     }
 
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--accent);
+      background-color: transparent;
+      color: var(--accent);
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .btn-sm:hover {
+      background-color: var(--accent);
+      color: var(--panel-bg);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    .rule-card {
+      background-color: #11111b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .rule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .rule-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rule-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .icon-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .icon-btn-danger:hover {
+      border-color: var(--error) !important;
+      color: var(--error) !important;
+    }
+
+    .rule-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .rule-row > * {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .rule-select, .rule-input {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      box-sizing: border-box;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      box-sizing: border-box;
+    }
+
+    .search-btn {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .search-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .search-results-popup {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #181825;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      display: none;
+    }
+
+    .search-item {
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #313244;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .search-item:hover {
+      background: #313244;
+      color: var(--accent);
+    }
+
+    .search-item-path {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .empty-rules {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
     .status-msg {
       font-size: 0.85rem;
       margin-top: 10px;
@@ -132,7 +321,14 @@
 </head>
 <body>
   <div class="container">
-    <h2>Tana Sync Settings</h2>
+    <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px;">
+      <h2 style="margin: 0; border-bottom: none; padding-bottom: 0;">Tana Sync Settings</h2>
+      <span id="pluginVersionBadge" style="font-size: 0.75rem; color: var(--text-muted);">Worker: Checking...</span>
+    </div>
+    
+    <div id="workerWarning" style="display: none; background: rgba(243, 139, 168, 0.15); border: 1px solid var(--error); border-radius: 6px; padding: 10px; margin-bottom: 16px; font-size: 0.85rem; color: #f38ba8; line-height: 1.4;">
+      <strong>App Reload Required:</strong> Super Productivity is running an older background worker script. Please press <strong>Ctrl + R</strong> (or restart Super Productivity) so the updated routing engine is activated.
+    </div>
     
     <div class="form-group">
       <label for="apiUrl">Tana Local API URL</label>
@@ -186,18 +382,44 @@
     </div>
 
     <div class="form-group">
-      <label for="targetSpProjectId">Target Project</label>
+      <label for="targetSpProjectId">Default Target Project</label>
       <select id="targetSpProjectId" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
         <option value="">Inbox (Default)</option>
       </select>
+      <span class="help-text">Applied if no custom routing rule matches.</span>
     </div>
 
     <div class="form-group">
-      <label for="targetSpTagId">Auto-Tag Tasks</label>
+      <label for="targetSpTagId">Default Auto-Tag</label>
       <select id="targetSpTagId" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background-color: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
         <option value="">None (Inbox only)</option>
       </select>
+      <span class="help-text">Applied if no custom routing rule matches.</span>
     </div>
+
+    <!-- Custom Routing Rules Section -->
+    <div class="section-header">
+      <h3 class="section-title">Task Routing Rules</h3>
+      <button type="button" id="addRuleBtn" class="btn-sm">+ Add Rule</button>
+    </div>
+    <span class="help-text" style="margin-bottom: 12px; line-height: 1.4;">Route tasks nested under specific Tana nodes (or with specific tags) to custom Projects and Tags. Evaluated top-to-bottom.</span>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <input type="checkbox" id="keepDefaultTag" checked>
+        Keep default tag when rule tag is applied
+      </label>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <input type="checkbox" id="updateExistingTasks" checked>
+        Re-apply rules to open tasks on sync
+      </label>
+      <span class="help-text">If checked, existing uncompleted tasks in Super Productivity will also be moved to match current routing rules.</span>
+    </div>
+
+    <div id="rulesContainer"></div>
 
     <button id="saveBtn" class="btn">Save Configuration</button>
     <button id="manualSyncBtn" class="btn btn-secondary">Sync Now</button>
@@ -221,8 +443,11 @@
 
     const STORAGE_KEY = 'tana_sync_config_fallback';
     let isConfigLoadedFromHost = false;
+    let routingRules = [];
+    let spProjectsList = [];
+    let spTagsList = [];
     
-    // Fallback load
+    // Fallback load from local storage
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -235,10 +460,257 @@
         if (config.plannedDateField !== undefined) document.getElementById('plannedDateField').value = config.plannedDateField;
         if (config.autoPlanFromDay !== undefined) document.getElementById('autoPlanFromDay').checked = config.autoPlanFromDay;
         if (config.syncInterval) document.getElementById('syncInterval').value = config.syncInterval;
+        if (config.keepDefaultTag !== undefined) document.getElementById('keepDefaultTag').checked = config.keepDefaultTag;
+        if (config.updateExistingTasks !== undefined) document.getElementById('updateExistingTasks').checked = config.updateExistingTasks;
+        if (Array.isArray(config.routingRules)) routingRules = config.routingRules;
       }
     } catch (e) {}
 
-    // Polling for config
+    function syncRulesFromDOM() {
+      const cards = document.querySelectorAll('.rule-card');
+      const updated = [];
+      cards.forEach((card, idx) => {
+        const typeEl = card.querySelector('.rule-type-select');
+        const modeEl = card.querySelector('.rule-mode-select');
+        const patternEl = card.querySelector('.rule-pattern-input');
+        const projEl = card.querySelector('.rule-proj-select');
+        const tagEl = card.querySelector('.rule-tag-select');
+        if (typeEl && patternEl) {
+          const orig = routingRules[idx] || {};
+          updated.push({
+            id: orig.id || ('r_' + Date.now() + '_' + idx),
+            matchType: typeEl.value,
+            matchMode: modeEl ? modeEl.value : 'contains',
+            pattern: patternEl.value.trim(),
+            targetProjectId: projEl ? projEl.value : '',
+            targetTagId: tagEl ? tagEl.value : ''
+          });
+        }
+      });
+      if (updated.length > 0 || cards.length === 0) {
+        routingRules = updated;
+      }
+      return routingRules;
+    }
+
+    function renderRules() {
+      const container = document.getElementById('rulesContainer');
+      container.innerHTML = '';
+
+      if (routingRules.length === 0) {
+        container.innerHTML = '<div class="empty-rules">No routing rules yet. Click <strong>+ Add Rule</strong> to route tasks based on Tana ancestors or tags.</div>';
+        return;
+      }
+
+      routingRules.forEach((rule, idx) => {
+        const card = document.createElement('div');
+        card.className = 'rule-card';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'rule-header';
+        
+        const title = document.createElement('span');
+        title.className = 'rule-title';
+        title.textContent = `Rule #${idx + 1}`;
+        header.appendChild(title);
+
+        const actions = document.createElement('div');
+        actions.className = 'rule-actions';
+
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'icon-btn';
+        upBtn.innerHTML = '&#9650;';
+        upBtn.title = 'Move Up';
+        upBtn.disabled = idx === 0;
+        upBtn.addEventListener('click', () => {
+          syncRulesFromDOM();
+          [routingRules[idx - 1], routingRules[idx]] = [routingRules[idx], routingRules[idx - 1]];
+          renderRules();
+        });
+        actions.appendChild(upBtn);
+
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'icon-btn';
+        downBtn.innerHTML = '&#9660;';
+        downBtn.title = 'Move Down';
+        downBtn.disabled = idx === routingRules.length - 1;
+        downBtn.addEventListener('click', () => {
+          syncRulesFromDOM();
+          [routingRules[idx + 1], routingRules[idx]] = [routingRules[idx], routingRules[idx + 1]];
+          renderRules();
+        });
+        actions.appendChild(downBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'icon-btn icon-btn-danger';
+        delBtn.innerHTML = '&#10005;';
+        delBtn.title = 'Delete Rule';
+        delBtn.addEventListener('click', () => {
+          syncRulesFromDOM();
+          routingRules.splice(idx, 1);
+          renderRules();
+        });
+        actions.appendChild(delBtn);
+
+        header.appendChild(actions);
+        card.appendChild(header);
+
+        // Row 1: Match Type & Mode
+        const row1 = document.createElement('div');
+        row1.className = 'rule-row';
+
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'rule-select rule-type-select';
+        typeSelect.innerHTML = `
+          <option value="ancestor">Under Node / Ancestor</option>
+          <option value="supertag">Has Supertag</option>
+          <option value="title">Task Title Contains</option>
+        `;
+        typeSelect.value = rule.matchType || 'ancestor';
+        typeSelect.addEventListener('change', (e) => {
+          rule.matchType = e.target.value;
+          updatePlaceholder();
+        });
+        row1.appendChild(typeSelect);
+
+        const modeSelect = document.createElement('select');
+        modeSelect.className = 'rule-select rule-mode-select';
+        modeSelect.innerHTML = `
+          <option value="contains">Contains (Partial)</option>
+          <option value="exact">Exact Match</option>
+        `;
+        modeSelect.value = rule.matchMode || 'contains';
+        modeSelect.addEventListener('change', (e) => {
+          rule.matchMode = e.target.value;
+        });
+        row1.appendChild(modeSelect);
+
+        card.appendChild(row1);
+
+        // Row 2: Search / Pattern
+        const searchWrap = document.createElement('div');
+        searchWrap.className = 'search-wrapper';
+
+        const patternInput = document.createElement('input');
+        patternInput.type = 'text';
+        patternInput.className = 'search-input rule-pattern-input';
+        patternInput.value = rule.pattern || '';
+        function updatePlaceholder() {
+          if (rule.matchType === 'supertag') {
+            patternInput.placeholder = 'Supertag name or ID (e.g. Trips)';
+          } else if (rule.matchType === 'title') {
+            patternInput.placeholder = 'Keyword in task title';
+          } else {
+            patternInput.placeholder = 'Tana node name (e.g. Barcelona, Spain 2026)';
+          }
+        }
+        updatePlaceholder();
+
+        patternInput.addEventListener('input', (e) => {
+          rule.pattern = e.target.value;
+        });
+        searchWrap.appendChild(patternInput);
+
+        const searchBtn = document.createElement('button');
+        searchBtn.type = 'button';
+        searchBtn.className = 'search-btn';
+        searchBtn.innerHTML = '&#128269;';
+        searchBtn.title = 'Search Tana Node';
+
+        const popup = document.createElement('div');
+        popup.className = 'search-results-popup';
+        popup.id = `searchPopup_${idx}`;
+
+        searchBtn.addEventListener('click', () => {
+          const q = patternInput.value.trim();
+          if (!q) {
+            showStatus('Type a keyword in the field to search Tana', true);
+            return;
+          }
+          popup.innerHTML = '<div style="padding: 8px; color: var(--text-muted); font-size: 0.8rem;">Searching Tana...</div>';
+          popup.style.display = 'block';
+          window.parent.postMessage({
+            type: 'TANA_SEARCH_NODES',
+            query: q,
+            ruleIndex: idx
+          }, '*');
+        });
+
+        searchWrap.appendChild(searchBtn);
+        searchWrap.appendChild(popup);
+        card.appendChild(searchWrap);
+
+        // Row 3: Target Project & Target Tag
+        const row3 = document.createElement('div');
+        row3.className = 'rule-row';
+
+        const projSelect = document.createElement('select');
+        projSelect.className = 'rule-select rule-proj-select';
+        const defaultProjOpt = document.createElement('option');
+        defaultProjOpt.value = '';
+        defaultProjOpt.textContent = '(Default Project)';
+        projSelect.appendChild(defaultProjOpt);
+        spProjectsList.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.title;
+          projSelect.appendChild(opt);
+        });
+        projSelect.value = rule.targetProjectId || '';
+        projSelect.addEventListener('change', (e) => {
+          rule.targetProjectId = e.target.value;
+        });
+        row3.appendChild(projSelect);
+
+        const tagSelect = document.createElement('select');
+        tagSelect.className = 'rule-select rule-tag-select';
+        const defaultTagOpt = document.createElement('option');
+        defaultTagOpt.value = '';
+        defaultTagOpt.textContent = '(None / Default Tag)';
+        tagSelect.appendChild(defaultTagOpt);
+        spTagsList.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.title;
+          tagSelect.appendChild(opt);
+        });
+        tagSelect.value = rule.targetTagId || '';
+        tagSelect.addEventListener('change', (e) => {
+          rule.targetTagId = e.target.value;
+        });
+        row3.appendChild(tagSelect);
+
+        card.appendChild(row3);
+        container.appendChild(card);
+      });
+    }
+
+    // Add Rule
+    document.getElementById('addRuleBtn').addEventListener('click', () => {
+      syncRulesFromDOM();
+      routingRules.push({
+        id: 'r_' + Date.now(),
+        matchType: 'ancestor',
+        pattern: '',
+        matchMode: 'contains',
+        targetProjectId: '',
+        targetTagId: ''
+      });
+      renderRules();
+    });
+
+    // Close search popups on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrapper')) {
+        document.querySelectorAll('.search-results-popup').forEach(p => p.style.display = 'none');
+      }
+    });
+
+    // Polling for config from host
     const reqInterval = setInterval(() => {
       if (!isConfigLoadedFromHost) {
         window.parent.postMessage({ type: 'TANA_GET_CONFIG' }, '*');
@@ -254,8 +726,8 @@
       dbg.style.display = dbg.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Save config
-    document.getElementById('saveBtn').addEventListener('click', () => {
+    function saveConfig(silent = false) {
+      syncRulesFromDOM();
       const config = {
         apiUrl: document.getElementById('apiUrl').value.trim() || 'http://127.0.0.1:8262',
         apiToken: document.getElementById('apiToken').value.trim(),
@@ -266,7 +738,10 @@
         autoPlanFromDay: document.getElementById('autoPlanFromDay').checked,
         syncInterval: parseInt(document.getElementById('syncInterval').value, 10) || 5,
         targetSpTagId: document.getElementById('targetSpTagId').value,
-        targetSpProjectId: document.getElementById('targetSpProjectId').value
+        targetSpProjectId: document.getElementById('targetSpProjectId').value,
+        keepDefaultTag: document.getElementById('keepDefaultTag').checked,
+        updateExistingTasks: document.getElementById('updateExistingTasks').checked,
+        routingRules: routingRules
       };
 
       try {
@@ -278,31 +753,54 @@
         config: config
       }, '*');
       
-      showStatus('Configuration saved!');
+      if (!silent) {
+        showStatus('Configuration saved!');
+      }
+      return config;
+    }
+
+    // Save config
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      saveConfig(false);
     });
 
-    // Manual Sync
+    // Manual Sync (auto-saves any unsaved rules before triggering sync)
     document.getElementById('manualSyncBtn').addEventListener('click', () => {
+      saveConfig(true);
       showStatus('Syncing...');
-      window.parent.postMessage({ type: 'TANA_MANUAL_SYNC' }, '*');
+      setTimeout(() => {
+        window.parent.postMessage({ type: 'TANA_MANUAL_SYNC' }, '*');
+      }, 100);
     });
 
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'TANA_CONFIG_DATA') {
         isConfigLoadedFromHost = true;
         const config = event.data.config || {};
-        const spTags = event.data.spTags || [];
-        const spProjects = event.data.spProjects || [];
+        spTagsList = event.data.spTags || [];
+        spProjectsList = event.data.spProjects || [];
         
         if (event.data.hostLogs && event.data.hostLogs.length > 0) {
           const dbg = document.getElementById('debugLogs');
           dbg.innerHTML = "<strong>Host Logs:</strong><br/>" + event.data.hostLogs.join('<br/>');
+          const logsStr = event.data.hostLogs.join(' ');
+          const badge = document.getElementById('pluginVersionBadge');
+          const warning = document.getElementById('workerWarning');
+          if (logsStr.includes('Build 17')) {
+            badge.textContent = 'Worker: v1.1.0 Active (Build 17)';
+            badge.style.color = 'var(--success)';
+            warning.style.display = 'none';
+          } else {
+            badge.textContent = 'Worker: Outdated (Ctrl+R needed)';
+            badge.style.color = 'var(--error)';
+            warning.style.display = 'block';
+          }
         }
         
         const tagSelect = document.getElementById('targetSpTagId');
         while (tagSelect.options.length > 1) { tagSelect.remove(1); }
         
-        spTags.forEach(t => {
+        spTagsList.forEach(t => {
           const opt = document.createElement('option');
           opt.value = t.id;
           opt.textContent = t.title;
@@ -312,7 +810,7 @@
         const projectSelect = document.getElementById('targetSpProjectId');
         while (projectSelect.options.length > 1) { projectSelect.remove(1); }
         
-        spProjects.forEach(p => {
+        spProjectsList.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.id;
           opt.textContent = p.title;
@@ -329,6 +827,50 @@
         if (config.syncInterval) document.getElementById('syncInterval').value = config.syncInterval;
         if (config.targetSpTagId) document.getElementById('targetSpTagId').value = config.targetSpTagId;
         if (config.targetSpProjectId) document.getElementById('targetSpProjectId').value = config.targetSpProjectId;
+        if (config.keepDefaultTag !== undefined) document.getElementById('keepDefaultTag').checked = config.keepDefaultTag;
+        if (config.updateExistingTasks !== undefined) document.getElementById('updateExistingTasks').checked = config.updateExistingTasks;
+        if (Array.isArray(config.routingRules)) {
+          routingRules = config.routingRules;
+        }
+        
+        renderRules();
+      } else if (event.data && event.data.type === 'TANA_SEARCH_NODES_RESULT') {
+        const ruleIdx = event.data.ruleIndex;
+        const results = event.data.results || [];
+        const popup = document.getElementById(`searchPopup_${ruleIdx}`);
+        if (!popup) return;
+
+        popup.innerHTML = '';
+        if (results.length === 0) {
+          popup.innerHTML = '<div style="padding: 8px; color: var(--text-muted); font-size: 0.8rem;">No matching nodes found.</div>';
+        } else {
+          results.forEach(res => {
+            const item = document.createElement('div');
+            item.className = 'search-item';
+            
+            const nameEl = document.createElement('strong');
+            nameEl.textContent = res.name;
+            item.appendChild(nameEl);
+
+            if (res.breadcrumb && res.breadcrumb.length > 0) {
+              const pathEl = document.createElement('span');
+              pathEl.className = 'search-item-path';
+              pathEl.textContent = res.breadcrumb.join(' > ');
+              item.appendChild(pathEl);
+            }
+
+            item.addEventListener('click', () => {
+              if (routingRules[ruleIdx]) {
+                routingRules[ruleIdx].pattern = res.name;
+              }
+              popup.style.display = 'none';
+              renderRules();
+            });
+
+            popup.appendChild(item);
+          });
+        }
+        popup.style.display = 'block';
       } else if (event.data && event.data.type === 'TANA_SYNC_RESULT') {
         showStatus(event.data.message, event.data.isError);
       } else if (event.data && event.data.type === 'TANA_DEBUG_LOG') {
@@ -337,6 +879,7 @@
       }
     });
 
+    renderRules();
   </script>
 </body>
 </html>

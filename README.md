@@ -1,6 +1,6 @@
 # Super Productivity & Tana Outliner Sync
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/punchkicker/SuperProductivity-TanaOutliner-Sync/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/punchkicker/SuperProductivity-TanaOutliner-Sync/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Super Productivity](https://img.shields.io/badge/Super%20Productivity-%3E%3D14.0.0-green.svg)](https://super-productivity.com/)
 
@@ -13,6 +13,7 @@ Tasks from Tana are imported into Super Productivity with their scheduled dates,
 ## Features
 
 - **Two-way completion sync**: Completing a task in Super Productivity marks it done in Tana.
+- **Hierarchical task routing & auto-tagging**: Route tasks nested under specific Tana nodes (no matter how deep) or with specific supertags into designated Super Productivity projects and tags.
 - **Due dates and scheduled dates**:
   - Scheduled dates map to Super Productivity planned dates (`dueDay` / `plannedAt`).
   - Due dates map to deadlines (`deadlineDay`).
@@ -28,9 +29,9 @@ Tasks from Tana are imported into Super Productivity with their scheduled dates,
 
 ## Installation
 
-1. Download `super-productivity-tana-plugin-v1.0.1.zip` from the [Latest Release](https://github.com/punchkicker/SuperProductivity-TanaOutliner-Sync/releases).
+1. Download `super-productivity-tana-plugin-v1.1.0.zip` from the [Latest Release](https://github.com/punchkicker/SuperProductivity-TanaOutliner-Sync/releases).
 2. In Super Productivity, go to **Settings** > **Plugins** (enable plugins if needed).
-3. Click **Import Plugin** and select `super-productivity-tana-plugin-v1.0.1.zip`.
+3. Click **Import Plugin** and select `super-productivity-tana-plugin-v1.1.0.zip`.
 4. Open the **Tana Sync** tab in the sidebar to configure your settings.
 
 ---
@@ -46,9 +47,21 @@ Tasks from Tana are imported into Super Productivity with their scheduled dates,
 | **Tana Due Date Property** | Tana field name to use as the Super Productivity deadline. | `Due date` |
 | **Tana Planned Date Property** | Custom Tana field name to use for planned dates. If blank, uses the parent or daily note. | *(Blank)* |
 | **Auto-Plan from Daily Note** | Automatically sets planned date to the daily note date when a task is created on or under a daily note. | Checked |
-| **Target Project** | Super Productivity project to import tasks into. | Inbox (Default) |
-| **Auto-Tag Tasks** | Super Productivity tag to apply to imported tasks. | None |
+| **Default Target Project** | Super Productivity project to import tasks into when no routing rule matches. | Inbox (Default) |
+| **Default Auto-Tag** | Super Productivity tag to apply when no routing rule matches. | None |
+| **Keep Default Tag** | When checked, tasks matching a custom rule retain the default tag in addition to their rule tag. | Checked |
 | **Sync Interval** | Background polling interval in minutes. | `5` |
+
+---
+
+### Task Routing Rules
+
+You can define rules to automatically direct imported tasks into specific projects and tags based on where they reside in Tana or what supertag they have:
+
+- **Under Node / Ancestor**: Matches any ancestor in the task's hierarchy. For example, a rule matching `Barcelona, Spain 2026` will catch every task underneath that node, regardless of nesting depth.
+- **Has Supertag**: Matches tasks that have a specific Tana supertag.
+- **Task Title Contains**: Matches tasks by keyword in the task title.
+- **Rule Order**: Rules are evaluated top-to-bottom. Use the up and down arrow buttons to adjust priority.
 
 ---
 

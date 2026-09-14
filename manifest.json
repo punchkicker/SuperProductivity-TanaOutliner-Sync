@@ -1,7 +1,7 @@
 {
   "id": "tana-sync",
   "name": "Tana Sync",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Syncs tasks between Tana outliner and Super Productivity",
   "manifestVersion": 1,
   "minSupVersion": "14.0.0",
